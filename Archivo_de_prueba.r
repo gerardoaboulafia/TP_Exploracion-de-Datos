@@ -1,3 +1,7 @@
-x <- c(2,3,4)
-
-print("cambio de prueba")
+### Grupo X
+### Integrantes:
+###   - Aboulafia Gerardo
+###   - Barquet Amelie
+###   - David Santiago
+###   - Fernandez Ignacio
+###   - Vasquez Agustina
