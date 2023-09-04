@@ -39,6 +39,7 @@ data$Calorías <- as.numeric(data$Calorías)
 
 
 # -------- Analizamos el comportamiento de los datos para la variable Alcohol de acuerdo con la cantidad de Calorías consumidas --------
+
 # Recategorizamos la variable Calorías en 3 categorías (CATE 1, CATE 2, CATE 3) de acuerdo con los valores de la variable
 data$Categoria_Calorías <- cut(data$Calorías, breaks=c(0, 1100, 1700, Inf), labels=c("CATE 1", "CATE 2", "CATE 3"))
 
