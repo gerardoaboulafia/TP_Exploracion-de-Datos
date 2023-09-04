@@ -30,6 +30,63 @@ data$Calorías <- as.numeric(data$Calorías)
 
 #Acá va la parte de Amelie
 
+# Convertir la columna "Grasas_sat" a números decimales
+data_pacientes$Grasas_sat <- as.numeric(data_pacientes$Grasas_sat)
+
+# Medidas de posición Grasas_sat
+media_grasa <- mean(data_pacientes$Grasas_sat, na.rm = TRUE)  # na.rm = TRUE para omitir NA
+mediana_grasa <- median(data_pacientes$Grasas_sat, na.rm = TRUE)
+barplot(c(media, mediana), names.arg = c("Media Grasa", "Mediana Grasa"))
+
+# Calcular la desviación estándar Grasas_sat
+desviacion_estandar_grasa <- sd(data_pacientes$Grasas_sat, na.rm = TRUE)
+
+# Crear un histograma Grasas_sat
+hist(data_pacientes$Grasas_sat, main = "Histograma de Datos", xlab = "Valores", ylab = "Frecuencia")
+
+# Crear un boxplot Grasas_sat
+boxplot(data_pacientes$Grasas_sat, main = "Gráfico de Caja", ylab = "Valores")
+
+# Convertir la columna "Alcohol" a números decimales
+data_pacientes$Alcohol <- as.numeric(data_pacientes$Alcohol)
+
+# Medidas de posición alcohol
+media_alcohol <- mean(data_pacientes$Alcohol, na.rm = TRUE)  # na.rm = TRUE para omitir NA
+mediana_alcohol <- median(data_pacientes$Alcohol, na.rm = TRUE)
+barplot(c(media, mediana), names.arg = c("Media alcohol", "Mediana alcohol"))
+
+# Calcular la desviación estándar alcohol
+desviacion_estandar_alcohol <- sd(data_pacientes$Alcohol, na.rm = TRUE)
+
+# Crear un histograma alcohol
+hist(data_pacientes$Alcohol, main = "Histograma de Datos Alcohol", xlab = "Valores", ylab = "Frecuencia")
+
+# Crear un boxplot alcohol
+boxplot(data_pacientes$Alcohol, main = "Gráfico de Caja Alcohol", ylab = "Valores")
+
+# Convertir la columna "calorias" a números decimales
+data_pacientes$Calorías <- as.numeric(data_pacientes$Calorías)
+
+# Medidas de posición calorias
+media_calorías <- mean(data_pacientes$Calorías, na.rm = TRUE)  # na.rm = TRUE para omitir NA
+mediana_calorías <- median(data_pacientes$Calorías, na.rm = TRUE)
+barplot(c(media, mediana), names.arg = c("Media calorias", "Mediana calorias"))
+
+# Calcular la desviación estándar calorias
+desviacion_estandar_calorias <- sd(data_pacientes$Calorías, na.rm = TRUE)
+
+# Crear un histograma calorias
+hist(data_pacientes$Calorías, main = "Histograma de Datos Calorias", xlab = "Valores", ylab = "Frecuencia")
+
+# Crear un boxplot calorias
+boxplot(data_pacientes$Calorías, main = "Gráfico de Caja Calorias", ylab = "Valores")
+
+#Desviacion estandar completo
+barplot(c(desviacion_estandar_grasa,desviacion_estandar_alcohol,desviacion_estandar_calorias), names.arg = c("Desviacion estandar Grasas", "Desviacion estandar Alcohol", "Desviacion estandar Calorías"))
+
+View(data_pacientes)
+
+
 
 # -------- Analizamos si el sexo influye en el comportamiento de las variables --------
 
