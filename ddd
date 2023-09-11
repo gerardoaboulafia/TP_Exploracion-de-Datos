@@ -47,6 +47,8 @@ educacion_titulos<-c('Muy Bajo','Bajo','Medio','Alto','Muy Alto','Máximo')
 
 tabla_fert_agr=table(niveles_de_fertilidad,porcentaje_trabajo_agricola)
 round(prop.table(tabla_fert_agr),2)
+rownames(tabla_fert_agr)<-fertilidad_titulos
+colnames(tabla_fert_agr)<-agricultura_titulos
 tabla_fert_agr
 chisq.test(tabla_fert_agr)  #opcion =>,simulate.p.values=TRUE
       #EDUCACION/CALIFICACION
@@ -58,23 +60,21 @@ chisq.test(tabla_educ_calif,simulate.p.value = TRUE)
 
       #INFANT MORTALITY/AGRICULTURA
 tabla_inf_agr=table(intervalosMortInf,porcentaje_trabajo_agricola)
-tabla_inf_agr
-rownames(tabla_fert_agr)<-fertilidad_titulos
-colnames(tabla_fert_agr)<-agricultura_titulos
-tabla_fert_agr
-chisq.test(tabla_fert_agr)
-tabla_educ_calif
 
 library(lattice)
 barchart(tabla_fert_agr,horizontal=FALSE,stack=TRUE,auto.key=TRUE)
-barplot(table(niveles_de_fertilidad,porcentaje_trabajo_agricola)) #faltan los 
-                                                           #colores y labels
-
-chisq.test(tabla_fert_agr)  #opcion =>,simulate.p.values=TRUE
-
+barplot(table(niveles_de_fertilidad,porcentaje_trabajo_agricola))  
+                                                        
 #CORRELACION
 cor(swiss)
 cor(fertilidad,agricultura)
+
+library(pheatmap)
+
+m<-cor(swiss)
+pheatmap(m,display_numbers = TRUE,cluster_cols = FALSE,
+         cluster_rows = FALSE)      #nos devuelve el mapa de calor con
+                                    #la matriz de correlaciones
 
 #PLOTS (muestran graficamente los valores de las correlaciones)
 plot(agricultura,fertilidad)
@@ -82,3 +82,5 @@ plot(catolicos,educacion)
 plot(educacion,agricultura)
 
 plot(mort_inf,fertilidad)
+
+
