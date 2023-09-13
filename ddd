@@ -1,86 +1,83 @@
-#FERTILIDAD
+
+
+#CREAMOS CLASES DE CADA VARIABLE CON STURGES
+
+                            #FERTILIDAD
 fertilidad<-c(swiss[1])
 fertilidad<-as.numeric(unlist(fertilidad))
 niveles_de_fertilidad=cut(fertilidad,breaks=seq(35.0,92.5,length=nclass.Sturges(fertilidad)),include.lowest=TRUE)
 
-#EDUCACION
+                            #EDUCACION
 educacion<-c(swiss[4])
 educacion<-as.numeric(unlist(educacion))
 intervalosEducacion<-cut(educacion,breaks=seq(
   range(educacion)[1],range(educacion)[2],length=nclass.Sturges(educacion)),include.lowest=TRUE)
 
-#MORT.INFANTIL
+                            #MORT.INFANTIL
 mort_inf<-c(swiss[6])
 mort_inf<-as.numeric(unlist(mort_inf))
 intervalosMortInf<-cut(mort_inf,breaks=seq(
   range(mort_inf)[1],range(mort_inf)[2],length=nclass.Sturges(mort_inf)),include.lowest=TRUE)
 
-#CATOLICOS
+                            #CATOLICOS
 catolicos<-c(swiss[5])
 catolicos<-as.numeric(unlist(catolicos))
 intervalosCatolicos<-cut(catolicos,breaks=seq(
   range(catolicos)[1],range(catolicos)[2],length=nclass.Sturges(catolicos)),include.lowest=TRUE)
 
-#AGRICULTURA
+                            #AGRICULTURA
 agricultura=c(swiss[2])
 agricultura=as.numeric(unlist(agricultura))
 porcentaje_trabajo_agricola=cut(agricultura,breaks=seq(1.2,89.7,length=nclass.Sturges(
   agricultura)),include.lowest=TRUE)
 
 
-#ALTA CALIFICACION
+                            #ALTA CALIFICACION
 alta_calificacion<-c(swiss[3])
 alta_calificacion<-as.numeric(unlist(alta_calificacion))
 intervalosAltaCalificacion<-cut(alta_calificacion,breaks=seq(
   range(alta_calificacion)[1],range(alta_calificacion)[2],length=nclass.Sturges(alta_calificacion)),include.lowest=TRUE)
+intervalosAltaCalificacion
 
-
-#LABELS
+#LABELS para las tablas de contingencia
 agricultura_titulos<-c('1.2%-16%','16%-31%','31%-46%','46%-60%','60%-75%','75%-90%')
 fertilidad_titulos<-c('Muy Pobre','Pobre','Medio','Bueno','Muy Bueno','Excelente')
 catolicos_titulos<-c('Muy Bajo','Bajo','Medio','Alto','Muy Alto','Máximo')
 educacion_titulos<-c('Muy Bajo','Bajo','Medio','Alto','Muy Alto','Máximo')
+mort_inf_titulos<-c('[10.8,13.4]','(13.4,16.1]','(16.1,18.7]','(18.7,21.3]','(21.3,24]','(24,26.6]')
+alta_calificacion_titulos<-c('[3,8.67]' ,'(8.67,14.3]', '(14.3,20]' ,'(20,25.7]', '(25.7,31.3]', '(31.3,37]')
 
-#TABLAS DE CONTINGENCIA
+                            #TABLAS DE CONTINGENCIA
 
-      #FERTILIDAD/AGRICULTURA
+#FERTILIDAD/AGRICULTURA
 
 tabla_fert_agr=table(niveles_de_fertilidad,porcentaje_trabajo_agricola)
-round(prop.table(tabla_fert_agr),2)
-rownames(tabla_fert_agr)<-fertilidad_titulos
+rownames(tabla_fert_agr)<-fertilidad_titulos  ##definimos titulos para columnas y filas
 colnames(tabla_fert_agr)<-agricultura_titulos
+round(prop.table(tabla_fert_agr),2) ## creamos tabla de frecuencias (dos decimales)
+round(chisq.test(tabla_fert_agr)$expected,2)  ##creamos tabla de valores esperados
 tabla_fert_agr
-chisq.test(tabla_fert_agr)  #opcion =>,simulate.p.values=TRUE
-      #EDUCACION/CALIFICACION
+chisq.test(tabla_fert_agr)  #opcion =>,simulate.p.values=TRUE  ((devuelve un warning message))
+
+#EDUCACION/CALIFICACION
 tabla_educ_calif=table(intervalosAltaCalificacion,intervalosEducacion)
-datos<-data.frame(tabla_educ_calif)
-datos[1][3]
+tabla_educ_calif
+chisq.test(tabla_educ_calif,simulate.p.value = TRUE) 
 
-chisq.test(tabla_educ_calif,simulate.p.value = TRUE)
-
-      #INFANT MORTALITY/AGRICULTURA
+#INFANT MORTALITY/AGRICULTURA
 tabla_inf_agr=table(intervalosMortInf,porcentaje_trabajo_agricola)
+tabla_inf_agr
 
-library(lattice)
-barchart(tabla_fert_agr,horizontal=FALSE,stack=TRUE,auto.key=TRUE)
-barplot(table(niveles_de_fertilidad,porcentaje_trabajo_agricola))  
-                                                        
-#CORRELACION
+###### podemos generar 15 tablas bivariadas distintas (combinatorio(6,2)).#############
+
+  
+
+                        #CORRELACION
 cor(swiss)
-cor(fertilidad,agricultura)
 
 library(pheatmap)
 
 m<-cor(swiss)
 pheatmap(m,display_numbers = TRUE,cluster_cols = FALSE,
          cluster_rows = FALSE)      #nos devuelve el mapa de calor con
-                                    #la matriz de correlaciones
-
-#PLOTS (muestran graficamente los valores de las correlaciones)
-plot(agricultura,fertilidad)
-plot(catolicos,educacion)
-plot(educacion,agricultura)
-
-plot(mort_inf,fertilidad)
-
-
+#la matriz de correlaciones
