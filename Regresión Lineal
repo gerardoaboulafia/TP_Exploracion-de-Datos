@@ -1,0 +1,67 @@
+#importo el archivo
+file.choose()
+datos=read.csv("C:\\Users\\javzq\\Downloads\\vino.csv")
+install.packages("reticulate")
+# Cargar el paquete reticulate
+library(reticulate)
+
+# Cargar las bibliotecas de Python
+sklearn <- import("sklearn.linear_model", convert = TRUE)
+train_test_split <- import("sklearn.model_selection", convert = TRUE)
+metrics <- import("sklearn.metrics", convert = TRUE)
+DecisionTreeClassifier <- import("sklearn.tree", convert = TRUE)
+KNeighborsClassifier <- import("sklearn.neighbors", convert = TRUE)
+SVC <- import("sklearn.svm", convert = TRUE)
+SVR <- import("sklearn.svm", convert = TRUE)
+
+# Ejemplo de uso de las bibliotecas
+lm_model <- sklearn$linear_model$LinearRegression()
+logistic_model <- sklearn$linear_model$LogisticRegression()
+
+install.packages("caret")
+# Cargar el paquete caret
+library(caret)
+
+# Proporción para dividir los datos (en este caso, 75% entrenamiento y 25% prueba)
+split_ratio <- 0.25
+
+# Fijar una semilla aleatoria para reproducibilidad
+set.seed(42)
+
+# Crear índices para la división de los datos
+split_index <- createDataPartition(datos$quality, p = split_ratio, list = FALSE)
+
+# Dividir los datos en conjuntos de entrenamiento y prueba
+X_train <- datos[,0:10][split_index, ]
+X_test <- datos[,0:10][-split_index, ]
+y_train <- datos$quality[split_index]
+y_test <- datos$quality[-split_index]
+
+# Mostrar las dimensiones de los conjuntos
+cat("X Train : ", dim(X_train), "\n")
+cat("X Test  : ", dim(X_test), "\n")
+cat("Y Train : ", length(y_train), "\n")
+cat("Y Test  : ", length(y_test), "\n")
+
+
+# Crear y ajustar el modelo de regresión lineal
+LR_model <- lm(y_train ~ ., data = data.frame(y_train, X_train))
+
+# Calcular el coeficiente de determinación (R-squared) en los conjuntos de entrenamiento y prueba
+R2_train <- 1 - sum((LR_model$residuals)^2) / sum((y_train - mean(y_train))^2)
+R2_test <- 1 - sum((LR_model$residuals)^2) / sum((y_test - mean(y_test))^2)
+
+print(paste("Score the X-train with Y-train is:", R2_train))
+print(paste("Score the X-test with Y-test is:", R2_test))
+
+# Realizar predicciones en el conjunto de prueba
+y_pred_LR <- predict(LR_model, newdata = data.frame(X_test))
+
+# Evaluar el modelo
+mae <- mean(abs(y_test - y_pred_LR))
+mse <- mean((y_test - y_pred_LR)^2)
+medae <- median(abs(y_test - y_pred_LR))
+
+print(paste("Model Evaluation Linear R: mean absolute error is", mae))
+print(paste("Model Evaluation Linear R: mean squared error is", mse))
+print(paste("Model Evaluation Linear R: median absolute error is", medae))
