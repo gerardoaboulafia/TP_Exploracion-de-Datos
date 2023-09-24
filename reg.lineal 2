@@ -1,0 +1,43 @@
+# Importar el archivo de datos
+file.choose()
+datos <- read.csv("C:\\Users\\javzq\\Downloads\\vino.csv")
+
+# Cargar el paquete reticulate
+library(reticulate)
+
+# Cargar la biblioteca de Python para regresión lineal
+sklearn <- import("sklearn.linear_model", convert = TRUE)
+
+# Crear conjuntos de entrenamiento y prueba
+set.seed(42)
+split_ratio <- 0.25
+split_index <- createDataPartition(datos$quality, p = split_ratio, list = FALSE)
+X_train <- datos[,0:10][split_index, ]
+X_test <- datos[,0:10][-split_index, ]
+y_train <- datos$quality[split_index]
+y_test <- datos$quality[-split_index]
+
+# Crear y ajustar el modelo de regresión lineal
+LR_model <- sklearn$linear_model$LinearRegression()
+LR_model$fit(X_train, y_train)
+
+# Calcular el coeficiente de determinación (R-squared) en los conjuntos de entrenamiento y prueba
+R2_train <- LR_model$score(X_train, y_train)
+R2_test <- LR_model$score(X_test, y_test)
+
+cat("Score the X-train with Y-train is:", R2_train, "\n")
+cat("Score the X-test with Y-test is:", R2_test, "\n")
+
+# Realizar predicciones en el conjunto de prueba
+y_pred_LR <- LR_model$predict(X_test)
+
+# Evaluar el modelo
+mae <- mean(abs(y_test - y_pred_LR))
+mse <- mean((y_test - y_pred_LR)^2)
+medae <- median(abs(y_test - y_pred_LR))
+
+print("Model Evaluation Linear R: mean absolute error is", mae, "\n")
+print("Model Evaluation Linear R: mean squared error is", mse, "\n")
+print("Model Evaluation Linear R: median absolute error is", medae, "\n")
+
+
