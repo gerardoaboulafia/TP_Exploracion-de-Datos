@@ -1,0 +1,53 @@
+library(tidyverse)
+library(ggplot2)
+
+library(readr)
+WineQT <- read_csv("WineQT.csv")
+
+qplot(WineQT$quality,bins=50)
+qplot(WineQT$alcohol,bins=50)
+
+expit<-plogis
+# Vemos la funcion logistica
+x <- seq(-10, 10, length.out=1e5)
+plot(x,
+     expit(x),
+     type = "l",
+     main = "Understanding the effect of expit")
+
+
+# Fijamos los valores categóricos de la variable 'quality'
+c<-ifelse(WineQT$quality>=6,1,0)
+WineQT$quality<-c
+df<-data.frame(WineQT)
+
+
+model_glm_original <- glm(quality ~ volatile.acidity+alcohol+density+total.sulfur.dioxide
+                 +pH+sulphates+free.sulfur.dioxide+chlorides+residual.sugar
+                 +citric.acid+fixed.acidity,
+                 family=binomial(link = "logit"),
+                 data=df)
+model_glm_original
+coef(model_glm_original) #coeficientes beta_0,...,beta_11 del modelo
+predict(model_glm_original,type='response')  #response nos da los datos en formato de probabilidad
+
+library(MASS)
+model_glm_step<-stepAIC(model_glm_original) #empleamos el criterio de informacion de AKAIKE
+model_glm_step$anova
+coef(model_glm_step)  #nuevos coeficientes beta_0,...,beta_6
+predict(model_glm_step,type='response')
+
+
+quantile(predict(model_glm_step, type='response'),
+         probs=seq(0,1,0.1)) #aplicamos el test de Hosmer Lemeshow para evauar la bondad de ajuste del modelo
+
+install.packages('generalhoslem')
+library(generalhoslem)
+
+goodness.of.fit <- logitgof(WineQT$quality,
+                            predict(model_glm_step, type='response') )
+print(goodness.of.fit) #obtenemos un p-valor y un valor del test X^2
+print(cbind(goodness.of.fit$observed,
+            goodness.of.fit$expected))
+view(df)
+df$predicted_quality<-predict(model_glm_step,type='response')
