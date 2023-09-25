@@ -53,6 +53,9 @@ pheatmap(cor(WineQT), display_numbers = TRUE, cluster_cols = FALSE,
 #------------- Aplicación de Modelo de Regresión Lineal Múltiple -------------#
 lm(alcohol ~ ., data = WineQT) %>% summary()
 
+# Instanciamos el modelo 
+m1 <- lm(alcohol ~ ., data = WineQT)
+
 # Optimización del modelo por feature selection
 step <- stepAIC(m1, direction = "both")
 step$anova
