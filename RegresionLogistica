@@ -51,3 +51,6 @@ print(cbind(goodness.of.fit$observed,
             goodness.of.fit$expected))
 view(df)
 df$predicted_quality<-predict(model_glm_step,type='response')
+tabla<-cbind(goodness.of.fit$observed,
+             goodness.of.fit$expected)
+view(tabla)
