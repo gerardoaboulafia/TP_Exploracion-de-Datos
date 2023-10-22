@@ -20,7 +20,10 @@ libs <- c(
   "caTools",
   "ROCR",
   "caret",
-  "readr",
+  "bestglm",
+  "InformationValue",
+  "pROC",
+  "glmnet"
 )
 
 installed_libs <- libs %in% rownames(installed.packages())
@@ -80,8 +83,8 @@ wss <- numeric(n_clusters)
 
 # Iteramos sobre el modelo para obtener el mejor valor de clusters
 for (i in 1:n_clusters) {
-  # Ajustamos el modelo: km.out
-  km_model <- kmeans(WineQT, centers = i, nstart = 20)
+  # Ajustamos el modelo: km_model
+  km_model <- kmeans(WineQT, centers = i, nstart = 50)
   # Guardamos el resultado de WSS
   wss[i] <- km_model$tot.withinss
 }
@@ -93,20 +96,20 @@ scree_plot <- ggplot(wss_df, aes(x = clusters, y = wss, group = 1)) +
   geom_point(size = 4)+
   geom_line() +
   scale_x_continuous(breaks = c(2, 4, 6, 8, 10)) +
-  xlab('Number of clusters')
+  xlab("Number of clusters")
 
 scree_plot
 
 scree_plot +
   geom_hline(
     yintercept = wss,
-    linetype = 'dashed',
+    linetype = "dashed",
 )
 
 
 # -------------Aplicación de modelo probabilístico de clasificación (Bayes)------------------#
 # Fijamos los valores categóricos de la variable 'quality'
-c <- ifelse(WineQT$quality>=6,1,0)
+c <- ifelse(WineQT$quality >= 6, 1, 0)
 WineQT$quality <- c
 # Modelo de ML probabilístico usando logit:
 # ('quality' es una variable binaria)
@@ -116,7 +119,7 @@ df$quality <- as.factor(df$quality)
 #(70% entrenamiento, 30% prueba)
 
 # Seteamos una seed para poder reproducir los resultados
-set.seed(123) 
+set.seed(123)
 
 split <- sample.split(df$quality, SplitRatio = 0.7)
 train_data <- subset(df, split == TRUE)
@@ -143,5 +146,22 @@ cat("AUC:", auc, "\n")
 
 
 # -------------Aplicación de modelo de lógico de clasificación (Decision Tree Classifier)------------------#
+samp <- sample(1:nrow(WineQT), 0.7 * nrow(WineQT))
+train <- WineQT[samp, ]
+test <- WineQT[-samp, ]
 
+# Instanciamos el modelo de regresion logística
+model <- glm(
+  quality ~ .,
+  data = train,
+  family = binomial(link = "logit")
+)
 
+best_model <- bestglm(
+  train,
+  IC = "AIC",
+  family = binomial,
+  method = "exhaustive"
+)
+
+best_model$Subsets
