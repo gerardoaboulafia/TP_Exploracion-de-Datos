@@ -1,4 +1,5 @@
-### Grupo X
+### Trabajo Práctico N°1 - Exploración de Datos
+### Dataset: Pacientes
 ### Integrantes:
 ###   - Aboulafia Gerardo
 ###   - Barquet Amelie
@@ -6,9 +7,8 @@
 ###   - Fernandez Ignacio
 ###   - Vasquez Agustina
 
-# Carga del dataset y librerías
+# Carga del dataset
 data <- read.csv("/Users/gerardoaboulafia/Documents/Exploración_de_datos/Datasets/Datos trabajo 1.csv", sep=";", dec = ",")
-library(ggplot2)
 
 # -------------Limpieza de datos y transformación de variables------------------
 
@@ -18,13 +18,14 @@ data$Calorías <- gsub("\\.", "", data$Calorías)
 #Verificamos qué tipo de dato tiene cada columna del dataset
 str(data)
 
-# Reemplazamos el valor 999,99 por NA (como indica la consigna)
-data <- replace(data, data == 999.99, NA)
-
 #Transformamos la columna Calorías a numérica
 data$Calorías <- as.numeric(data$Calorías)
 
+# Reemplazamos el valor 999,99 por NA (como indica la consigna)
+data <- replace(data, data == 999.99, NA)
+
 # -------- Análisis exploratorio de datos y visualización --------
+#Definimos la paleta de colores para los plots
 colores <- c("CATE 1" = "#065893", "CATE 2" = "#179CBC", "CATE 3" = "#47C0A7")
 
 # Medidas de posición Grasas_sat
@@ -32,7 +33,7 @@ media_grasa <- mean(data$Grasas_sat, na.rm = TRUE)  # na.rm = TRUE para omitir N
 mediana_grasa <- median(data$Grasas_sat, na.rm = TRUE)
 valores_grasa <- c(media_grasa, mediana_grasa)
 barplot(valores_grasa, names.arg = c("Media Grasa", "Mediana Grasa"), 
-        main = "Medidas de posición Grasas_sat", col = "#065893",
+        main = "Medidas de posición Grasa Saturadas", col = "#065893",
         ylim = c(0, max(valores_grasa) * 1.3))
 
 # Calcular la desviación estándar Grasas_sat
@@ -129,18 +130,7 @@ boxplot(Calorías ~ Sexo, data = data,
 data$Categoria_Calorías <- cut(data$Calorías, breaks=c(0, 1100, 1700, Inf), labels=c("CATE 1", "CATE 2", "CATE 3"))
 
 # Visualizamos la distribución de la variable Calorías por los grupos creados
-
-ggplot(data, aes(x = Categoria_Calorías, y = Alcohol)) +
-  geom_boxplot(fill = colores) +
-  labs(
-    title = "Consumo de Alcohol en función de la Categoría de Calorías",
-    x = "Categoría de Calorías",
-    y = "Consumo de Alcohol"
-  ) + 
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
-    axis.title.x = element_text(hjust = 0.5),
-    axis.title.y = element_text(hjust = 0.5),
-    axis.text.x = element_text(size = 12, face = "bold", angle = 45),
-  )
+boxplot(Alcohol ~ Categoria_Calorías, data = data, 
+        xlab = "Categoría de Calorías", ylab = "Alcohol", 
+        main = "Distribución de Alcohol por Categoría de Calorías",
+        col=colores)

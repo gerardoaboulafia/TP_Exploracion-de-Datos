@@ -81,3 +81,26 @@ cor(fertilidad,agricultura)
 plot(agricultura,fertilidad)
 plot(catolicos,educacion)
 plot(educacion,agricultura)
+
+View(swiss)
+
+
+#-----------------Calcular la distancia de Mahalanobis-----------------#
+#Calcular la distancia de Mahalanobis para cada registro
+mahalanobis(swiss, colMeans(swiss), cov(swiss))
+
+#crear nueva columna para almacenar el valor de la distancia de Mahalanobis
+swiss$distanciaMahalanobis<-mahalanobis(swiss, colMeans(swiss), cov(swiss))
+
+#crear nueva columna para almacenar el p-value de la distancia de Mahalanobis
+swiss$pvalue<-pchisq(swiss$distanciaMahalanobis, df = 5, lower.tail = FALSE)
+
+# filtramos los registros con p-value menores a 0.001.
+swiss[swiss$pvalue < 0.001, ]
+
+
+
+#### Prueba
+
+table(swiss$Fertility, swiss$Agriculture)
+chisq.test(swiss$Fertility, swiss$Agriculture, correct=FALSE)
