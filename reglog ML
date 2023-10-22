@@ -1,0 +1,95 @@
+library(tidyverse)
+library(ggplot2)
+
+library(readr)
+WineQT <- read_csv("WineQT.csv")
+
+qplot(WineQT$quality,bins=50)
+qplot(WineQT$alcohol,bins=50)
+
+expit<-plogis
+# Vemos la funcion logistica
+x <- seq(-10, 10, length.out=1e5)
+plot(x,
+     expit(x),
+     type = "l",
+     main = "Understanding the effect of expit")
+
+
+# Fijamos los valores categóricos de la variable 'quality'
+c<-ifelse(WineQT$quality>=6,1,0)
+WineQT$quality<-c
+df<-data.frame(WineQT)
+
+
+model_glm_original <- glm(quality ~ volatile.acidity+alcohol+density+total.sulfur.dioxide
+                          +pH+sulphates+free.sulfur.dioxide+chlorides+residual.sugar
+                          +citric.acid+fixed.acidity,
+                          family=binomial(link = "logit"),
+                          data=df)
+model_glm_original
+coef(model_glm_original) #coeficientes beta_0,...,beta_11 del modelo
+predict(model_glm_original,type='response')  #response nos da los datos en formato de probabilidad
+
+library(MASS)
+model_glm_step<-stepAIC(model_glm_original) #empleamos el criterio de informacion de AKAIKE
+model_glm_step$anova
+coef(model_glm_step)  #nuevos coeficientes beta_0,...,beta_6
+predict(model_glm_step,type='response')
+
+
+quantile(predict(model_glm_step, type='response'),
+         probs=seq(0,1,0.1)) #aplicamos el test de Hosmer Lemeshow para evauar la bondad de ajuste del modelo
+
+install.packages('generalhoslem')
+library(generalhoslem)
+
+goodness.of.fit <- logitgof(WineQT$quality,
+                            predict(model_glm_step, type='response') )
+print(goodness.of.fit) #obtenemos un p-valor y un valor del test X^2
+print(cbind(goodness.of.fit$observed,
+            goodness.of.fit$expected))
+view(df)
+df$predicted_quality<-predict(model_glm_step,type='response')
+tabla<-cbind(goodness.of.fit$observed,
+             goodness.of.fit$expected)
+view(tabla)
+
+
+#-------------------------------------------------------#
+
+# Modelo de ML probabilístico usando logit:
+
+# Cargamos la librería necesaria para regresión logística
+library("caTools")
+
+# ('quality' es una variable binaria)
+df$quality <- as.factor(df$quality)
+
+# Separamos los datos en datos de entrenamiento y de prueba
+#(70% entrenamiento, 30% prueba)
+set.seed(123) #(para obtener el mismo procedimiento
+              #aleatorio en cada ejecución)
+
+split <- sample.split(df$quality, SplitRatio = 0.7)
+train_data <- subset(df, split == TRUE)
+test_data <- subset(df, split == FALSE)
+
+# Instanciamos el modelo
+model <- glm(quality ~ ., data = train_data, family = binomial(link = "logit"))
+
+# Generamos las predicciones sobre los datos de testeo
+predictions <- predict(model, newdata = test_data, type = "response")
+
+# Evaluación del modelo
+
+# Empleamos ROC y AUC
+
+library("ROCR")
+pred <- prediction(predictions, test_data$quality)
+perf <- performance(pred, "tpr", "fpr")
+auc <- as.numeric(performance(pred, "auc")@y.values)
+
+# AUC value
+cat("AUC:", auc, "\n")
+
