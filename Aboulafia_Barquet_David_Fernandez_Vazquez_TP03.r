@@ -14,7 +14,6 @@ libs <- c(
   ,"tidyr"
   ,"ggplot2"
   ,"MASS"
-  ,"generalhoslem"
   ,"caTools"
   ,"ROCR"
   ,"caret"
@@ -91,7 +90,6 @@ scree_plot +
     yintercept = wss,
     linetype = "dashed",
   )
-scree_plot
 
 # -------------Aplicación de modelo probabilístico de clasificación (Regresión Logística)------------------#
 # Se fijan los valores categóricos de la variable 'quality'
@@ -164,6 +162,7 @@ plot(ROC_best_glm, col = colores)
 
 # -------------Aplicación de modelo de lógico de clasificación (Decision Tree Classifier)------------------#
 # Se separa los datos en datos de entrenamiento y de prueba
+set.seed(123)
 samp_DTC <- sample(1:nrow(WineQT), 0.7 * nrow(WineQT))
 train_DTC <- WineQT[samp_DTC, ]
 test_DTC <- WineQT[-samp_DTC, ]
@@ -175,10 +174,13 @@ tree_class <- rpart(
   method = "class"
 )
 
-tree_class
 
-# Se grafica el árbol
-fancyRpartPlot(tree_class)
+# Se visualiza el árbol
+rpart.plot(
+  tree_class, type = 4,
+  extra = 108, under = TRUE,
+  cex = 0.8, box.palette = "auto"
+)
 
 # Se evalúa el modelo
 important_variables <- tree_class$variable.importance
@@ -186,26 +188,39 @@ important_variables <- as.data.frame(important_variables)
 important_variables
 printcp(tree_class)
 
-# Se usa el modelo para predecir
-test_DTC$quality_pred <- predict(tree_class, test_DTC, type = "class")
-test_DTC$quality_pred_prob <- predict(tree_class, test_DTC, type = "prob")
-test_DTC
+# Se predice las probabilidades de la variable de respuesta
+pred_DTC <- predict(tree_class, test_DTC, type = "prob")
+pred_DTC
+
+# Se convierte las probabilidades en etiquetas binarias usando un umbral (por ejemplo, 0.5)
+test_pred_binary_DTC <- ifelse(pred_DTC >= 0.5, 1, 0)
+test_pred_binary_DTC
 
 # Se genera una matriz de confusión
-confusionMatrix(
-  test_DTC$quality,
-  test_DTC$quality_pred,
-  positive = "1"
+confusion_matrix_DTC <- confusionMatrix(
+  data = factor(test_pred_binary_DTC[, 2]),
+  reference = factor(test_DTC$quality),
 )
 
-# Se hace la curva ROC
-ROC_best_DT <- roc(test_DTC$quality, test_DTC$quality_pred_prob[, 2])
+print(confusion_matrix_DTC)
+
+# Se calcula la curva ROC
+ROC_best_DT <- roc(test_DTC$quality, pred_DTC[, 2])
+
+# Se visualiza la curva ROC
+plot(ROC_best_DT, col = colores)
 
 # Se calcula AUC
 auc(ROC_best_DT)
 
-
 ### -------------Selección del mejor modelo de clasificación------------------#
 # Plot de las curvas ROC de los modelos
 plot(ROC_best_glm, col = colores[1]) # Regresión Logística
-plot(ROC_best_DT, col = colores[2], add = TRUE) # Decision Tree
+plot(ROC_best_DT, col = colores[2], add = TRUE) # Decision Tree Classifier
+legend(
+  "bottomright",
+  legend = c("Regresión Logística", "Decision Tree Classifier"),
+  col = colores[1:2],
+  lty = 1,
+  cex = 0.8
+)
