@@ -174,7 +174,6 @@ tree_class <- rpart(
   method = "class"
 )
 
-
 # Se visualiza el árbol
 rpart.plot(
   tree_class, type = 4,
@@ -212,6 +211,49 @@ plot(ROC_best_DT, col = colores)
 
 # Se calcula AUC
 auc(ROC_best_DT)
+
+# Se poda el árbol
+pruned_tree <- prune(
+  tree_class,
+  cp = tree_class$cptable[which.min(tree_class$cptable[,"xerror"]),"CP"]
+)
+
+# Se visualiza el árbol podado
+rpart.plot(
+  pruned_tree, type = 4,
+  extra = 108, under = TRUE,
+  cex = 0.8, box.palette = "auto"
+)
+
+# Se evalúa el modelo
+important_variables <- pruned_tree$variable.importance
+important_variables <- as.data.frame(important_variables)
+important_variables
+
+# Se predice las probabilidades de la variable de respuesta
+pred_pruned_tree <- predict(pruned_tree, test_DTC, type = "prob")
+pred_pruned_tree
+
+# Se convierte las probabilidades en etiquetas binarias usando un umbral (por ejemplo, 0.5)
+test_pred_binary_pruned_tree <- ifelse(pred_pruned_tree >= 0.5, 1, 0)
+test_pred_binary_pruned_tree
+
+# Se genera una matriz de confusión
+confusion_matrix_pruned_tree <- confusionMatrix(
+  data = factor(test_pred_binary_pruned_tree[, 2]),
+  reference = factor(test_DTC$quality),
+)
+
+print(confusion_matrix_pruned_tree)
+
+# Se calcula la curva ROC
+ROC_best_pruned_tree <- roc(test_DTC$quality, pred_pruned_tree[, 2])
+
+# Se visualiza la curva ROC
+plot(ROC_best_pruned_tree, col = colores)
+
+# Se calcula AUC
+auc(ROC_best_pruned_tree)
 
 ### -------------Selección del mejor modelo de clasificación------------------#
 # Plot de las curvas ROC de los modelos
