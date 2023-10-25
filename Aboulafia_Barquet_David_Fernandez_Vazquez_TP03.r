@@ -215,7 +215,7 @@ auc(ROC_best_DT)
 # Se poda el árbol
 pruned_tree <- prune(
   tree_class,
-  cp = tree_class$cptable[which.min(tree_class$cptable[,"xerror"]),"CP"]
+  cp = tree_class$cptable[which.min(tree_class$cptable[,"xerror"]), "CP"]
 )
 
 # Se visualiza el árbol podado
@@ -258,7 +258,7 @@ auc(ROC_best_pruned_tree)
 ### -------------Selección del mejor modelo de clasificación------------------#
 # Plot de las curvas ROC de los modelos
 plot(ROC_best_glm, col = colores[1]) # Regresión Logística
-plot(ROC_best_DT, col = colores[2], add = TRUE) # Decision Tree Classifier
+plot(ROC_best_pruned_tree, col = colores[2], add = TRUE) # Decision Tree Classifier
 legend(
   "bottomright",
   legend = c("Regresión Logística", "Decision Tree Classifier"),
